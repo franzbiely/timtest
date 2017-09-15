@@ -13,6 +13,17 @@ AWS.config.update({
 module.exports.create = (event, context, callback) => {
 
     const query = event.queryStringParameters;
+    
+    if (typeof query.email !== 'string' || typeof query.password !== 'string') {
+        callback(null, {
+            statusCode: 403,
+            body: {
+                status: "failed"
+            }
+        });
+        return;
+    }
+
 
     docClient.put({
         TableName: TableName,
@@ -42,7 +53,7 @@ module.exports.create = (event, context, callback) => {
 };
 
 module.exports.auth = (event, context, callback) => {
-    
+
     const query = event.queryStringParameters;
 
     docClient.get({
