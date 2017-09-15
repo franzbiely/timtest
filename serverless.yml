@@ -6,12 +6,15 @@ provider:
   runtime: nodejs6.10
 
 functions:
-  userCreate:
+  create:
+    handler: api/user.create
     events: 
       - http: post user
-  userToken:
+  auth:
+    handler: api/user.auth
     events:
       - http: post token
-      
+
 plugins:
   - serverless-offline
+  - serverless-dynamodb-local
