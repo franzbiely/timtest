@@ -60,7 +60,7 @@ module.exports.create = (event, context, callback) => {
 };
 
 module.exports.auth = (event, context, callback) => {
-	var docClient = new AWS.DynamoDB.DocumentClient();
+    var docClient = new AWS.DynamoDB.DocumentClient();
     const data = event.queryStringParameters;
     const params = {
         TableName: "Users",
@@ -77,7 +77,7 @@ module.exports.auth = (event, context, callback) => {
                 body: {
                     success: "false",
                     "message": "Invalid username or password",
-                    item : params.Key
+                    item: params.Key
                 }
             };
         } else {
@@ -85,10 +85,32 @@ module.exports.auth = (event, context, callback) => {
                 statusCode: 200,
                 body: {
                     status: "success",
-                    Token : "xxxxxxxxxxxxxxxxxxx"
+                    Token: "xxxxxxxxxxxxxxxxxxx"
                 }
             };
         }
+        callback(null, response);
+    });
+};
+
+module.exports.list = (event, context, callback) => {
+    var docClient = new AWS.DynamoDB.DocumentClient();
+    const params = {
+		TableName: "Users"
+	};
+    docClient.scan(params, (error, result) => {
+        // handle potential errors
+        if (error) {
+            console.error(error);
+            callback(new Error('Error'));
+            return;
+        }
+
+        // create a response
+        const response = {
+            statusCode: 200,
+            body: JSON.stringify(result.Items),
+        };
         callback(null, response);
     });
 };

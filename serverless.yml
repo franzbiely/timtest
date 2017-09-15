@@ -18,6 +18,10 @@ functions:
     handler: api/user.auth
     events:
       - http: POST token
+  list:
+    handler: api/user.list
+    events:
+      - http: GET list
 
 
 plugins:
