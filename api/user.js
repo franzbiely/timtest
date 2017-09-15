@@ -1,5 +1,9 @@
 'use strict';
-var AWS = require("aws-sdk");
+
+let AWS = require("aws-sdk"),
+    docClient = new AWS.DynamoDB.DocumentClient(),
+    response = '',
+    TableName = "Users";
 
 AWS.config.update({
     region: "us-west-2",
@@ -8,20 +12,15 @@ AWS.config.update({
 
 module.exports.create = (event, context, callback) => {
 
-    var docClient = new AWS.DynamoDB.DocumentClient();
+    const query = event.queryStringParameters;
 
-    const data = event.queryStringParameters;
-    const params = {
-        TableName: "Users",
+    docClient.put({
+        TableName: TableName,
         Item: {
-            email: data.email,
-            password: data.password
+            email: query.email,
+            password: query.password
         },
-    };
-
-    let response = '';
-
-    docClient.put(params, function(err, data) {
+    }, function(err, data) {
         if (err) {
             response = {
                 statusCode: 403,
@@ -43,17 +42,15 @@ module.exports.create = (event, context, callback) => {
 };
 
 module.exports.auth = (event, context, callback) => {
-    var docClient = new AWS.DynamoDB.DocumentClient();
+    
     const query = event.queryStringParameters;
-    const params = {
-        TableName: "Users",
+
+    docClient.get({
+        TableName: TableName,
         Key: {
             email: query.email
-            // password: data.password
         },
-    };
-    let response = '';
-    docClient.get(params, function(err, data) {
+    }, function(err, data) {
         if (err) {
             response = {
                 statusCode: 403,
@@ -63,47 +60,37 @@ module.exports.auth = (event, context, callback) => {
                 }
             };
         } else {
-        	console.log("WHY",data.Item.password, query.password);
-        	if( data.Item.password == query.password ) {
-        		response = {
-	                statusCode: 200,
-	                body: {
-	                    status: "success",
-	                    Token: "xxxxxxxxxxxxxxxxxxx"
-	                }
-	            };	
-        	}
-        	else {
-        		response = {
-	                statusCode: 403,
-	                body: {
-	                    success: "false",
-	                    "message": "Invalid username or password"
-	                }
-	            };
-        	}
-        	
-
-            
+            if (data.Item.password == query.password) {
+                response = {
+                    statusCode: 200,
+                    body: {
+                        status: "success",
+                        Token: "xxxxxxxxxxxxxxxxxxx"
+                    }
+                };
+            } else {
+                response = {
+                    statusCode: 403,
+                    body: {
+                        success: "false",
+                        "message": "Invalid username or password"
+                    }
+                };
+            }
         }
         callback(null, response);
     });
 };
 
 module.exports.list = (event, context, callback) => {
-    var docClient = new AWS.DynamoDB.DocumentClient();
-    const params = {
-		TableName: "Users"
-	};
-    docClient.scan(params, (error, result) => {
-        // handle potential errors
+
+    docClient.scan({
+        TableName: TableName
+    }, (error, result) => {
         if (error) {
-            console.error(error);
             callback(new Error('Error'));
             return;
         }
-
-        // create a response
         const response = {
             statusCode: 200,
             body: JSON.stringify(result.Items),
