@@ -6,15 +6,47 @@ provider:
   runtime: nodejs6.10
 
 functions:
+  test:
+    handler: api/user.foo
+    events: 
+      - http: POST foo
   create:
     handler: api/user.create
     events: 
-      - http: post user
+      - http: POST user
   auth:
     handler: api/user.auth
     events:
-      - http: post token
+      - http: 
+          path: token
+          method: post
+          cors: true
 
 plugins:
   - serverless-offline
   - serverless-dynamodb-local
+
+custom:
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    migration:
+      dir: offline/migrations
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
