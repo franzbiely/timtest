@@ -25,36 +25,70 @@ module.exports.foo = (event, context, callback) => {
 
 module.exports.create = (event, context, callback) => {
 
+    var docClient = new AWS.DynamoDB.DocumentClient();
+
+    const data = event.queryStringParameters;
+    const params = {
+        TableName: "Users",
+        Item: {
+            email: data.email,
+            password: data.password
+        },
+    };
+
+    let response = '';
+
+    docClient.put(params, function(err, data) {
+        if (err) {
+            response = {
+                statusCode: 403,
+                body: {
+                    status: "failed"
+                }
+            };
+        } else {
+            response = {
+                statusCode: 200,
+                body: {
+                    status: "success"
+                }
+            };
+        }
+        callback(null, response);
+    });
+
+};
+
+module.exports.auth = (event, context, callback) => {
 	var docClient = new AWS.DynamoDB.DocumentClient();
-	
-	const data = event.queryStringParameters;
-	const params = {
-	    TableName: "Users",
-	    Item: {
-	        email: data.email,
-	        password: data.password
-	    },
-	};
-	
-	let response='';
-
-	docClient.put(params, function(err, data) {
-	    if (err) {
-	        response = {
-	            statusCode: 403,
-	            body: {
-	                status: "failed"
-	            }
-	        };
-	    } else {
-	        response = {
-	            statusCode: 200,
-	            body: {
-	                status: "success"
-	            }
-	        };
-	    }
-	    callback(null, response);
-	});
-
+    const data = event.queryStringParameters;
+    const params = {
+        TableName: "Users",
+        Key: {
+            email: data.email,
+            password: data.password
+        },
+    };
+    let response = '';
+    docClient.get(params, function(err, data) {
+        if (err) {
+            response = {
+                statusCode: 403,
+                body: {
+                    success: "false",
+                    "message": "Invalid username or password",
+                    item : params.Key
+                }
+            };
+        } else {
+            response = {
+                statusCode: 200,
+                body: {
+                    status: "success",
+                    Token : "xxxxxxxxxxxxxxxxxxx"
+                }
+            };
+        }
+        callback(null, response);
+    });
 };

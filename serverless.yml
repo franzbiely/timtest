@@ -17,10 +17,8 @@ functions:
   auth:
     handler: api/user.auth
     events:
-      - http: 
-          path: token
-          method: post
-          cors: true
+      - http: POST token
+
 
 plugins:
   - serverless-offline
