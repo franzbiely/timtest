@@ -6,10 +6,6 @@ provider:
   runtime: nodejs6.10
 
 functions:
-  test:
-    handler: api/user.foo
-    events: 
-      - http: POST foo
   create:
     handler: api/user.create
     events: 

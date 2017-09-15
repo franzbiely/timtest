@@ -6,23 +6,6 @@ AWS.config.update({
     endpoint: "http://localhost:8000"
 });
 
-
-
-
-
-module.exports.foo = (event, context, callback) => {
-    console.log(event);
-    const response = {
-        statusCode: 200,
-        headers: {
-            "x-custom-header": "My Header Value"
-        },
-        body: JSON.stringify(event.queryStringParameters)
-    };
-
-    callback(null, response);
-}
-
 module.exports.create = (event, context, callback) => {
 
     var docClient = new AWS.DynamoDB.DocumentClient();
