@@ -9,15 +9,14 @@ var docClient = new AWS.DynamoDB.DocumentClient()
 
 var table = "Users";
 
-var email = 'admin@admin.com';
-var password = "1234admin";
+var email = 'goku@admin.com';
+var password = "123";
 
 var params = {
-    TableName: table
-    // Key:{
-    //     "email": email,
-    //     "password": password
-    // }
+    TableName: table,
+    Key: {
+        "email": email
+    }
 };
 
 docClient.get(params, function(err, data) {

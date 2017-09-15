@@ -61,12 +61,12 @@ module.exports.create = (event, context, callback) => {
 
 module.exports.auth = (event, context, callback) => {
     var docClient = new AWS.DynamoDB.DocumentClient();
-    const data = event.queryStringParameters;
+    const query = event.queryStringParameters;
     const params = {
         TableName: "Users",
         Key: {
-            email: data.email,
-            password: data.password
+            email: query.email
+            // password: data.password
         },
     };
     let response = '';
@@ -76,18 +76,32 @@ module.exports.auth = (event, context, callback) => {
                 statusCode: 403,
                 body: {
                     success: "false",
-                    "message": "Invalid username or password",
-                    item: params.Key
+                    "message": "Invalid username or password"
                 }
             };
         } else {
-            response = {
-                statusCode: 200,
-                body: {
-                    status: "success",
-                    Token: "xxxxxxxxxxxxxxxxxxx"
-                }
-            };
+        	console.log("WHY",data.Item.password, query.password);
+        	if( data.Item.password == query.password ) {
+        		response = {
+	                statusCode: 200,
+	                body: {
+	                    status: "success",
+	                    Token: "xxxxxxxxxxxxxxxxxxx"
+	                }
+	            };	
+        	}
+        	else {
+        		response = {
+	                statusCode: 403,
+	                body: {
+	                    success: "false",
+	                    "message": "Invalid username or password"
+	                }
+	            };
+        	}
+        	
+
+            
         }
         callback(null, response);
     });
